@@ -1,21 +1,5 @@
-import { JSXElement, Show, createSignal, onMount } from "solid-js";
-
-type CardProps = {
-  primary?: boolean;
-  error?: boolean;
-  children: JSXElement;
-};
-
-function Card({ primary = false, error = false, children }: CardProps) {
-  let backgroundColor = "bg-indigo-400";
-  if (primary) {
-    backgroundColor = "bg-cyan-400";
-  }
-  if (error) {
-    backgroundColor = "bg-orange-400";
-  }
-  return <div class={`${backgroundColor} p-4`}>{children}</div>;
-}
+import { Show, createSignal, onMount } from "solid-js";
+import Card from "./components/Card";
 
 function App() {
   const [locationQueryResponded, setLocationQueryResponded] = createSignal<boolean>(false);
@@ -46,7 +30,7 @@ function App() {
   return (
     <div class="w-screen h-screen  bg-gradient-to-b from-indigo-900 to-indigo-950">
       <div class="container max-w-3xl mx-auto p-4 flex flex-col gap-4">
-        <Show when={locationQueryResponded()} fallback={<Card primary>Hyväksy paikannus</Card>}>
+        <Show when={locationQueryResponded()} fallback={<Card>Hyväksy paikannus</Card>}>
           <Show when={position()} fallback={<Card error>Paikannus estetty</Card>}>
             <Card>{`Sijainti: ${position()?.coords.latitude}, ${position()?.coords
               .longitude}`}</Card>
