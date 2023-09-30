@@ -1,9 +1,13 @@
-import { Show, createSignal, onMount } from "solid-js";
+import { Show, createEffect, createSignal, onMount } from "solid-js";
 import Card from "./components/Card";
+import { getForecast } from "./api/getForecast";
+import { LocationWeather } from "./types/weather";
+import WeatherCard from "./components/WeatherCard";
 
 function App() {
   const [locationQueryResponded, setLocationQueryResponded] = createSignal<boolean>(false);
   const [position, setPosition] = createSignal<GeolocationPosition | null>(null);
+  const [forecast, setForecast] = createSignal<LocationWeather | null>(null);
 
   onMount(() => {
     if ("geolocation" in navigator) {
@@ -27,14 +31,29 @@ function App() {
     }
   });
 
+  createEffect(async () => {
+    if (position()) {
+      const data = await getForecast({
+        latitude: position()!.coords.latitude,
+        longitude: position()!.coords.longitude,
+      });
+      setForecast(data);
+    }
+  });
+
   return (
     <div class="w-screen h-screen  bg-gradient-to-b from-indigo-900 to-indigo-950">
       <div class="container max-w-3xl mx-auto p-4 flex flex-col gap-4">
-        <Show when={locationQueryResponded()} fallback={<Card>Hyväksy paikannus</Card>}>
-          <Show when={position()} fallback={<Card error>Paikannus estetty</Card>}>
-            <Card>{`Sijainti: ${position()?.coords.latitude}, ${position()?.coords
-              .longitude}`}</Card>
+        <Card error={locationQueryResponded() && !position()} title="Your location">
+          <Show when={locationQueryResponded()} fallback={"Allow geolocation"}>
+            <Show when={position()} fallback={"Geolocation failed"}>
+              <div>{`Latitude: ${position()?.coords.latitude}`}</div>
+              <div>{`Longitude: ${position()?.coords.longitude}`}</div>
+            </Show>
           </Show>
+        </Card>
+        <Show when={forecast()}>
+          <WeatherCard data={forecast()!} />
         </Show>
       </div>
     </div>
