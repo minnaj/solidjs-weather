@@ -9,6 +9,7 @@ function Frontpage() {
   const [locationQueryResponded, setLocationQueryResponded] = createSignal<boolean>(false);
   const [position, setPosition] = createSignal<GeolocationPosition | null>(null);
   const [forecast, setForecast] = createSignal<LocationWeather | null>(null);
+  const [searchInput, setSearchInput] = createSignal("");
 
   onMount(() => {
     if ("geolocation" in navigator) {
@@ -44,7 +45,7 @@ function Frontpage() {
 
   return (
     <div class="container max-w-3xl mx-auto p-4 flex flex-col gap-4">
-      <SearchField />
+      <SearchField input={searchInput} setInput={setSearchInput} debounced />
       <Card error={locationQueryResponded() && !position()} title="Your location">
         <Show when={locationQueryResponded()} fallback={"Allow geolocation"}>
           <Show when={position()} fallback={"Geolocation failed"}>
