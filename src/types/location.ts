@@ -7,3 +7,8 @@ export type LocationResult = {
   region: string;
   url: string;
 };
+
+export type Position = {
+  latitude: number;
+  longitude: number;
+};

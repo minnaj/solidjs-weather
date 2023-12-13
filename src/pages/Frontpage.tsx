@@ -1,5 +1,5 @@
 import { Show, createEffect, createSignal, onMount } from "solid-js";
-import { getForecast } from "../api/getForecast";
+import getForecast from "../api/getForecast";
 import { getLocations } from "../api/getLocations";
 import { LocationWeather } from "../types/weather";
 import { ResultOption } from "../types/search";
