@@ -1,4 +1,5 @@
 export type LocationResult = {
+  id: string;
   country: string;
   lat: number;
   lon: number;

@@ -1,6 +1,13 @@
-import { Accessor, Setter, createSignal } from "solid-js";
+import { Accessor, Setter, createEffect, createSignal } from "solid-js";
+import { A } from "@solidjs/router";
 import useDebounce from "../hooks/useDebounce";
 import { ResultOption } from "../types/search";
+
+enum Key {
+  ArrowDown = "ArrowDown",
+  ArrowUp = "ArrowUp",
+  Enter = "Enter",
+}
 
 type SearchFieldProps = {
   debounced: boolean;
@@ -11,34 +18,38 @@ type SearchFieldProps = {
 
 function SearchField({ input, setInput, debounced, options }: SearchFieldProps) {
   const [selectedOptionIndex, setSelectedOptionIndex] = createSignal<number | null>(null);
+  const [listRef, setListRef] = createSignal<HTMLUListElement | null>(null);
+
+  const resetSelectedOption = () => setSelectedOptionIndex(null);
 
   const handleInput = debounced ? useDebounce(setInput, 800) : setInput;
 
   const handleKeyDown = (e: KeyboardEvent) => {
-    if (!options || options().length === 0) {
+    if (!options || options().length === 0 || !Object.keys(Key).includes(e.key)) {
       return;
     }
     e.preventDefault();
-    if (e.key === "ArrowDown") {
+    if (e.key === Key.ArrowDown) {
       if (selectedOptionIndex() === null || selectedOptionIndex()! + 1 >= options().length) {
         setSelectedOptionIndex(0);
       } else {
         setSelectedOptionIndex(selectedOptionIndex()! + 1);
       }
     }
-    if (e.key === "ArrowUp") {
+    if (e.key === Key.ArrowUp) {
       if (selectedOptionIndex() === null || selectedOptionIndex()! === 0) {
         setSelectedOptionIndex(options().length - 1);
       } else {
         setSelectedOptionIndex(selectedOptionIndex()! - 1);
       }
     }
-    if (e.key === "Enter") {
-      // TODO: select location
+    if (e.key === Key.Enter && selectedOptionIndex() !== null) {
+      const childNodes = listRef()!.childNodes;
+      const selectedChild = childNodes[selectedOptionIndex()!];
+      const link = selectedChild.childNodes[0] as HTMLElement;
+      link.click();
     }
   };
-
-  const resetSelectedOption = () => setSelectedOptionIndex(null);
 
   return (
     <div class="flex relative text-white">
@@ -57,17 +68,20 @@ function SearchField({ input, setInput, debounced, options }: SearchFieldProps) 
         <ul
           id="city-search-results"
           class="absolute bg-slate-800 top-10 w-full shadow-2xl border-t border-slate-700"
+          ref={(el) => setListRef(el)}
         >
           {options().map((option, index) => (
-            <li onClick={option.onClick}>
-              <div
-                class={`px-4 py-2 hover:bg-sky-600 cursor-pointer ${
-                  index === selectedOptionIndex() ? "bg-sky-600" : ""
-                }`}
-              >
-                <div>{option.title}</div>
-                <div class="text-sm">{option.description}</div>
-              </div>
+            <li>
+              <A href={option.href} tabIndex={0}>
+                <div
+                  class={`px-4 py-2 hover:bg-sky-600 active:bg-sky-600 focus:bg-sky-600 cursor-pointer ${
+                    index === selectedOptionIndex() ? "bg-sky-600" : ""
+                  }`}
+                >
+                  <div>{option.title}</div>
+                  <div class="text-sm">{option.description}</div>
+                </div>
+              </A>
             </li>
           ))}
         </ul>

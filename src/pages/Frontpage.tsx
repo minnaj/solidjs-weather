@@ -52,7 +52,7 @@ function Frontpage() {
       const options = (locations || []).map((location) => ({
         title: location.name,
         description: `${location.region}, ${location.country}`,
-        onClick: () => console.log("TODO: onClick", location.name),
+        href: `/location/${location.id}`,
       }));
       setSearchResults(options);
     }
