@@ -1,11 +1,11 @@
 /* @refresh reload */
+import { lazy } from "solid-js";
 import { render } from "solid-js/web";
-import { Router, Routes, Route } from "@solidjs/router";
+import { Router, Routes, Route, Navigate } from "@solidjs/router";
+import { MatchFilters } from "@solidjs/router/dist/types";
 
 import "./index.css";
 import App from "./App";
-import Frontpage from "./pages/Frontpage";
-import Location from "./pages/Location";
 
 const root = document.getElementById("root");
 
@@ -15,13 +15,21 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
   );
 }
 
+const Frontpage = lazy(() => import("./pages/Frontpage"));
+const Location = lazy(() => import("./pages/Location"));
+
+const locationFilters: MatchFilters = {
+  id: /^\d+$/, // only allow numbers
+};
+
 render(
   () => (
     <App>
       <Router>
         <Routes>
+          <Route path="/location/:id" component={Location} matchFilters={locationFilters} />
           <Route path="/" component={Frontpage} />
-          <Route path="/location/:id" component={Location} />
+          <Route path="*" component={() => <Navigate href="/" />} />
         </Routes>
       </Router>
     </App>
